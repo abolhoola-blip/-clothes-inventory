@@ -1,167 +1,78 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>مخزون الملابس</title>
 <style>
-body{font-family:Arial,sans-serif;background:#f5f6f8;margin:0;padding:20px;color:#222}
-.container{max-width:1000px;margin:auto}
-h1{margin-bottom:20px}
-.card{background:white;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 2px 10px #00000012}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-input,select,button{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px;font-size:15px}
-button{background:#111;color:white;cursor:pointer;border:0}
-button:hover{opacity:.9}
-.stats{display:flex;gap:10px;flex-wrap:wrap}
-.stat{background:#f0f2f5;padding:12px 18px;border-radius:10px}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{padding:10px;border-bottom:1px solid #eee;text-align:center}
-.message{margin-top:10px;font-weight:bold;min-height:20px}
-.small{color:#666;font-size:13px}
+*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#171717;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:18px}
+h1{font-size:30px;margin:5px 0 22px}.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 4px 18px #0000000d}h2{margin:0 0 16px;font-size:23px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}input,select,button{width:100%;height:48px;border:1px solid #ddd;border-radius:10px;padding:0 12px;font-size:15px;font-family:inherit}button{background:#111;color:#fff;border:0;font-weight:700;cursor:pointer}.msg{min-height:24px;margin-top:10px;font-weight:700}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.stat{background:#f0f1f3;padding:11px 16px;border-radius:12px}.tablewrap{overflow:auto}table{width:100%;min-width:760px;border-collapse:collapse}th,td{text-align:center;padding:11px 7px;border-bottom:1px solid #eee}th{background:#fafafa}
+.badge{display:inline-block;padding:4px 9px;border-radius:20px;font-size:13px}.available{background:#e9f7ed}.reserved{background:#fff4d9}.empty{text-align:center;color:#777;padding:22px}.note{color:#666;font-size:13px;line-height:1.7}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.grid button{grid-column:1/-1}}@media(max-width:450px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body>
-<div class="container">
+<body><div class="wrap">
 <h1>📦 مخزون الملابس</h1>
 
-<div class="card">
-<h2>إضافة بضاعة</h2>
+<div class="card"><h2>إضافة بضاعة</h2>
 <div class="grid">
-<input id="product" placeholder="اسم المنتج">
-<input id="price" type="number" min="0" step="0.01" placeholder="السعر">
-<input id="color" placeholder="اللون">
-<input id="size" placeholder="المقاس">
-<input id="qty" type="number" min="1" step="1" placeholder="الكمية">
-<button id="addBtn" type="button">➕ إضافة بضاعة</button>
-</div>
-<div id="addMsg" class="message"></div>
+<input id="product" placeholder="اسم المنتج"><input id="price" type="number" min="0" step=".01" placeholder="السعر">
+<input id="color" placeholder="اللون"><input id="size" placeholder="المقاس"><input id="qty" type="number" min="1" step="1" placeholder="الكمية">
+<button id="add" type="button">➕ إضافة بضاعة</button></div><div id="addMsg" class="msg"></div></div>
+
+<div class="card"><h2>المخزون</h2>
+<div class="stats"><div class="stat">إجمالي القطع: <b id="total">0</b></div><div class="stat">المتاح للبيع: <b id="availableTotal">0</b></div><div class="stat">قيد الطلب/التوصيل: <b id="reservedTotal">0</b></div></div>
+<div class="tablewrap"><table><thead><tr><th>المنتج</th><th>السعر</th><th>اللون</th><th>المقاس</th><th>إجمالي المخزون</th><th>قيد الطلب</th><th>المتاح للبيع</th></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty">لا توجد بضاعة حاليًا.</div></div>
 </div>
 
-<div class="card">
-<h2>المخزون</h2>
-<div class="stats">
-<div class="stat">إجمالي القطع: <b id="total">0</b></div>
-<div class="stat">عدد الأصناف: <b id="items">0</b></div>
-</div>
-<table>
-<thead><tr><th>المنتج</th><th>السعر</th><th>اللون</th><th>المقاس</th><th>الكمية</th></tr></thead>
-<tbody id="stockBody"></tbody>
-</table>
-<p id="empty" class="small">لا توجد بضاعة حاليًا.</p>
-</div>
-
-<div class="card">
-<h2>العمليات</h2>
+<div class="card"><h2>العمليات</h2>
 <div class="grid">
-<select id="operation">
-<option value="sale">بيع</option>
-<option value="shipping">قيد التوصيل</option>
-<option value="delivered">تم التوصيل</option>
-<option value="cancel">إلغاء</option>
-<option value="returned">راجع</option>
-<option value="exchange">استبدال</option>
-</select>
-<select id="stockSelect"></select>
-<input id="opQty" type="number" min="1" step="1" placeholder="الكمية">
-<button id="opBtn" type="button">تنفيذ العملية</button>
-</div>
-<div id="opMsg" class="message"></div>
-<p class="small">تم التوصيل ينقص المخزون، وراجع يزيد المخزون. البيع وقيد التوصيل والإلغاء لا يغيرون المخزون في هذه النسخة.</p>
+<select id="operation"><option value="reserve">حجز / بيع</option><option value="shipping">قيد التوصيل</option><option value="delivered">تم التوصيل</option><option value="cancel">إلغاء</option><option value="returned">راجع</option><option value="exchange">استبدال</option></select>
+<select id="item"></select><input id="opQty" type="number" min="1" step="1" placeholder="الكمية"><button id="run" type="button">تنفيذ العملية</button>
+</div><div id="opMsg" class="msg"></div>
+<p class="note"><b>القاعدة:</b> عند الحجز/البيع تنقص «المتاح للبيع» فورًا وتدخل الكمية «قيد الطلب». عند قيد التوصيل أو تم التوصيل لا يحدث خصم إضافي. عند الإلغاء أو الراجع تعود الكمية للمتاح للبيع. هذه النسخة تعرض «استبدال» كعملية تحتاج تنفيذًا مخصصًا في الخطوة التالية.</p>
 </div>
 </div>
 
 <script>
-(function(){
-"use strict";
-var KEY="clothes_stock_v2";
-var stock=[];
-
-function load(){
-  try{ stock=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(stock)) stock=[]; }
-  catch(e){ stock=[]; }
-}
-function save(){ localStorage.setItem(KEY, JSON.stringify(stock)); }
-
+const KEY="clothes_stock_v3";
+let stock=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(stock))stock=[];
+function save(){localStorage.setItem(KEY,JSON.stringify(stock))}
 function render(){
-  var body=document.getElementById("stockBody");
-  var sel=document.getElementById("stockSelect");
-  body.innerHTML="";
-  sel.innerHTML="";
-  var total=0;
-  stock.forEach(function(x,i){
-    total+=Number(x.qty)||0;
-    var tr=document.createElement("tr");
-    [x.product,x.price+" د.ل",x.color,x.size,x.qty].forEach(function(v){
-      var td=document.createElement("td"); td.textContent=v; tr.appendChild(td);
-    });
-    body.appendChild(tr);
-    var opt=document.createElement("option");
-    opt.value=i;
-    opt.textContent=x.product+" | "+x.color+" | "+x.size+" | الكمية: "+x.qty;
-    sel.appendChild(opt);
-  });
-  document.getElementById("total").textContent=total;
-  document.getElementById("items").textContent=stock.length;
-  document.getElementById("empty").style.display=stock.length?"none":"block";
+ const rows=document.getElementById("rows"),item=document.getElementById("item");rows.innerHTML="";item.innerHTML="";
+ let total=0,av=0,res=0;
+ stock.forEach((x,i)=>{
+   x.qty=Number(x.qty)||0;x.reserved=Number(x.reserved)||0;if(x.reserved>x.qty)x.reserved=x.qty;
+   let a=x.qty-x.reserved;total+=x.qty;res+=x.reserved;av+=a;
+   const tr=document.createElement("tr");
+   [x.product,x.price+" د.ل",x.color,x.size,x.qty,x.reserved,a].forEach((v,j)=>{
+     const td=document.createElement("td");td.textContent=v;
+     if(j===6){td.innerHTML='<span class="badge '+(a?'available':'reserved')+'">'+a+'</span>'}
+     tr.appendChild(td)
+   });rows.appendChild(tr);
+   const o=document.createElement("option");o.value=i;o.textContent=`${x.product} | ${x.color} | ${x.size} | متاح: ${a}`;item.appendChild(o);
+ });
+ document.getElementById("total").textContent=total;document.getElementById("availableTotal").textContent=av;document.getElementById("reservedTotal").textContent=res;
+ document.getElementById("empty").style.display=stock.length?"none":"block";save();
 }
-
-document.getElementById("addBtn").addEventListener("click",function(){
-  var product=document.getElementById("product").value.trim();
-  var price=document.getElementById("price").value;
-  var color=document.getElementById("color").value.trim();
-  var size=document.getElementById("size").value.trim();
-  var qty=parseInt(document.getElementById("qty").value,10);
-  var msg=document.getElementById("addMsg");
-
-  if(!product || price==="" || !color || !size || !Number.isInteger(qty) || qty<1){
-    msg.textContent="⚠️ عبّي اسم المنتج والسعر واللون والمقاس والكمية.";
-    return;
-  }
-
-  var found=stock.find(function(x){
-    return x.product===product && String(x.price)===String(Number(price)) &&
-           x.color===color && x.size===size;
-  });
-  if(found) found.qty += qty;
-  else stock.push({product:product,price:Number(price),color:color,size:size,qty:qty});
-  save(); render();
-
-  document.getElementById("product").value="";
-  document.getElementById("price").value="";
-  document.getElementById("color").value="";
-  document.getElementById("size").value="";
-  document.getElementById("qty").value="";
-  msg.textContent="✅ تمت إضافة البضاعة بنجاح.";
-});
-
-document.getElementById("opBtn").addEventListener("click",function(){
-  var msg=document.getElementById("opMsg");
-  var i=parseInt(document.getElementById("stockSelect").value,10);
-  var qty=parseInt(document.getElementById("opQty").value,10);
-  var op=document.getElementById("operation").value;
-
-  if(!Number.isInteger(i) || !stock[i]){msg.textContent="⚠️ أضف بضاعة أولًا.";return;}
-  if(!Number.isInteger(qty)||qty<1){msg.textContent="⚠️ اكتب كمية صحيحة.";return;}
-
-  if(op==="delivered"){
-    if(stock[i].qty<qty){msg.textContent="⚠️ الكمية الموجودة غير كافية.";return;}
-    stock[i].qty-=qty;
-  } else if(op==="returned"){
-    stock[i].qty+=qty;
-  } else {
-    msg.textContent="✅ تم تسجيل العملية. لا يوجد تغيير في المخزون لهذه الحالة.";
-    document.getElementById("opQty").value="";
-    return;
-  }
-  if(stock[i].qty===0) stock.splice(i,1);
-  save(); render();
-  document.getElementById("opQty").value="";
-  msg.textContent="✅ تمت العملية وتحديث المخزون.";
-});
-
-load(); render();
-})();
+document.getElementById("add").onclick=()=>{
+ const p=document.getElementById("product").value.trim(),price=Number(document.getElementById("price").value),c=document.getElementById("color").value.trim(),s=document.getElementById("size").value.trim(),q=Number(document.getElementById("qty").value),m=document.getElementById("addMsg");
+ if(!p||!Number.isFinite(price)||price<0||!c||!s||!Number.isInteger(q)||q<1){m.textContent="⚠️ أكمل جميع الخانات بشكل صحيح.";return}
+ let x=stock.find(a=>a.product===p&&a.price===price&&a.color===c&&a.size===s);
+ if(x)x.qty+=q;else stock.push({product:p,price,color:c,size:s,qty:q,reserved:0});
+ save();render();["product","price","color","size","qty"].forEach(id=>document.getElementById(id).value="");m.textContent="✅ تمت إضافة البضاعة.";
+};
+document.getElementById("run").onclick=()=>{
+ const i=Number(document.getElementById("item").value),q=Number(document.getElementById("opQty").value),op=document.getElementById("operation").value,m=document.getElementById("opMsg");
+ if(!stock[i]){m.textContent="⚠️ أضف بضاعة أولًا.";return} if(!Number.isInteger(q)||q<1){m.textContent="⚠️ اكتب كمية صحيحة.";return}
+ const x=stock[i], available=x.qty-x.reserved;
+ if(op==="reserve"){if(available<q){m.textContent="⚠️ الكمية المتاحة للبيع غير كافية.";return}x.reserved+=q;m.textContent="✅ تم الحجز وخصم الكمية من المتاح للبيع فورًا."}
+ else if(op==="shipping"||op==="delivered"){m.textContent="✅ تم تسجيل الحالة. لا يوجد خصم إضافي لأن الكمية خُصمت عند الحجز."}
+ else if(op==="cancel"||op==="returned"){if(x.reserved<q){m.textContent="⚠️ كمية قيد الطلب أقل من الكمية التي تريد إرجاعها.";return}x.reserved-=q;m.textContent="✅ عادت الكمية إلى المتاح للبيع."}
+ else {m.textContent="ℹ️ الاستبدال سنجعله في الخطوة التالية بحيث تدخل القطعة الراجعة وتخرج القطعة البديلة بشكل صحيح.";return}
+ save();render();document.getElementById("opQty").value="";
+};
+render();
 </script>
-</body>
-</html>
+</body></html>
